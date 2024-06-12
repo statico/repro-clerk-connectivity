@@ -8,7 +8,7 @@ const config: ExpoConfig = {
   slug: "repro-clerk-connectivity",
   version: "1.0.0",
   scheme: "myapp",
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "expo-secure-store"],
   experiments: {
     typedRoutes: true,
   },
