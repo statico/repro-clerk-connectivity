@@ -1,11 +1,4 @@
-import {
-  SignedIn,
-  SignedOut,
-  useClerk,
-  useOAuth,
-  useSignIn,
-  useUser,
-} from "@clerk/clerk-expo"
+import { useClerk, useOAuth, useSignIn, useUser } from "@clerk/clerk-expo"
 import { useState } from "react"
 import {
   ActivityIndicator,
@@ -53,20 +46,20 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1 }}>
-        <VStack p={20}>
+        <VStack p={20} spacing={20}>
           <Text>
             Clerk publishable key: {String(clerk.publishableKey).slice(0, 20)}
             ...
           </Text>
 
-          <SignedIn>
+          {!!user && (
             <VStack pv={20} spacing={20}>
               <Text>You are signed in as {user?.id}</Text>
               <Button onPress={clerk.signOut} title="Sign Out" />
             </VStack>
-          </SignedIn>
+          )}
 
-          <SignedOut>
+          {!user && (
             <VStack pv={20} spacing={20} shouldWrapChildren>
               <Button onPress={handleOAuthSignIn} title="Sign In with OAuth" />
               <HStack spacing={10} justify="evenly">
@@ -82,13 +75,26 @@ export default function HomeScreen() {
                 <Button onPress={handleCredentialedSignIn} title="Sign In" />
               </HStack>
             </VStack>
-          </SignedOut>
+          )}
 
           <Text>
             Normally, signing in with oauth (first button) will sign you in as
             expected, and entering a valid email address and signing in with the
             second method will return a valid list of supported first factor
             strategies, like "password" or "email_magic_link".
+          </Text>
+
+          <Text>
+            <Text style={{ fontWeight: "bold" }}>Bug #1:</Text> If the network
+            request is interrupted during OAuth sighup, XXX() will never be
+            initialized, and you'll get an error "Cannot toString of XXXXXX".
+          </Text>
+
+          <Text>
+            <Text style={{ fontWeight: "bold" }}>Bug #2:</Text> If the network
+            request is interrupted during an email address signup without a
+            password, the resulting SignUp object will not be initialized, and
+            supportedFirstFactors will be empty.
           </Text>
         </VStack>
       </ScrollView>
