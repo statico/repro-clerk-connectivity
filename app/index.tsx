@@ -34,16 +34,15 @@ export default function HomeScreen() {
   }
 
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
 
   const handleCredentialedSignIn = async () => {
     try {
       if (!setActive) throw new Error("setActive is not defined")
-      const completeSignIn = await signIn.create({
+      const { createdSessionId, supportedFirstFactors } = await signIn.create({
         identifier: email,
-        password,
       })
-      await setActive({ session: completeSignIn.createdSessionId })
+      alert(JSON.stringify({ supportedFirstFactors }))
+      // await setActive({ session: createdSessionId })
     } catch (err) {
       alert(JSON.stringify(err))
     }
@@ -76,19 +75,21 @@ export default function HomeScreen() {
                   onChangeText={setEmail}
                   placeholder="Email"
                   keyboardType="email-address"
-                  style={{ flex: 1, borderWidth: 1 }}
-                />
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Password"
-                  secureTextEntry
-                  style={{ flex: 1, borderWidth: 1 }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={{ flex: 1, borderWidth: 1, padding: 5 }}
                 />
                 <Button onPress={handleCredentialedSignIn} title="Sign In" />
               </HStack>
             </VStack>
           </SignedOut>
+
+          <Text>
+            Normally, signing in with oauth (first button) will sign you in as
+            expected, and entering a valid email address and signing in with the
+            second method will return a valid list of supported first factor
+            strategies, like "password" or "email_magic_link".
+          </Text>
         </VStack>
       </ScrollView>
     </SafeAreaView>
