@@ -6,8 +6,11 @@
     "start": "expo start"
   },
   "dependencies": {
+    "@clerk/clerk-expo": "1.1.4",
+    "@clerk/clerk-js": "5.4.0",
     "@expo/vector-icons": "^14.0.0",
     "@react-navigation/native": "^6.0.2",
+    "dotenv": "^16.4.5",
     "expo": "~51.0.13",
     "expo-constants": "~16.0.2",
     "expo-font": "~12.0.7",
@@ -27,7 +30,9 @@
     "react-native-web": "~0.19.10"
   },
   "devDependencies": {
+    "@clerk/types": "4.4.0",
     "@babel/core": "^7.20.0",
+    "@types/dotenv": "^8.2.0",
     "@types/react": "~18.2.45",
     "@types/react-test-renderer": "^18.0.7",
     "typescript": "~5.3.3"
