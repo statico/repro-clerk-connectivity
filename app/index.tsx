@@ -1,14 +1,17 @@
 import { useClerk } from "@clerk/clerk-expo"
-import { SafeAreaView, Text, View } from "react-native"
+import { SafeAreaView, Text } from "react-native"
+import { VStack } from "react-native-flex-layout"
 
 export default function HomeScreen() {
   const clerk = useClerk()
 
   return (
     <SafeAreaView>
-      <View style={{ padding: 5 }}>
-        <Text>Hello, world! domain={clerk.publishableKey}</Text>
-      </View>
+      <VStack p={5} spacing={5}>
+        <Text>
+          Clerk publishable key: {String(clerk.publishableKey).slice(0, 20)}...
+        </Text>
+      </VStack>
     </SafeAreaView>
   )
 }
