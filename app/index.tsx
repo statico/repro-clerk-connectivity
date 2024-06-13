@@ -15,18 +15,22 @@ export default function HomeScreen() {
   const { user } = useUser()
   const { setActive, isLoaded, signIn } = useSignIn()
   const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" })
+  const [email, setEmail] = useState("")
 
   const handleOAuthSignIn = async () => {
     try {
+      // startOAuthFlow() fails when the network is down
       const { createdSessionId } = await startOAuthFlow()
+      console.log("startOAuthFlow succeeded") // Not printed when network is down
       if (!setActive) throw new Error("setActive is not defined")
-      if (createdSessionId) setActive({ session: createdSessionId })
+      if (createdSessionId) {
+        setActive({ session: createdSessionId })
+        alert("Sign in successful!")
+      }
     } catch (err) {
-      alert(JSON.stringify(err))
+      alert(String(err))
     }
   }
-
-  const [email, setEmail] = useState("")
 
   const handleCredentialedSignIn = async () => {
     try {
@@ -34,14 +38,26 @@ export default function HomeScreen() {
       const { createdSessionId, supportedFirstFactors } = await signIn.create({
         identifier: email,
       })
-      alert(JSON.stringify({ supportedFirstFactors }))
-      // await setActive({ session: createdSessionId })
+      if (!supportedFirstFactors.length)
+        // supportedFirstFactors is empty when the network is down
+        throw new Error(
+          "supportedFirstFactors is empty! " +
+            JSON.stringify(supportedFirstFactors)
+        )
+      await setActive({ session: createdSessionId })
+      alert("Sign in successful!")
     } catch (err) {
-      alert(JSON.stringify(err))
+      alert(String(err))
     }
   }
 
-  if (!isLoaded) return <ActivityIndicator />
+  if (!isLoaded)
+    return (
+      <Flex fill center>
+        <ActivityIndicator />
+        <Text>Waiting for Clerk...</Text>
+      </Flex>
+    )
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -78,23 +94,23 @@ export default function HomeScreen() {
           )}
 
           <Text>
-            Normally, signing in with oauth (first button) will sign you in as
-            expected, and entering a valid email address and signing in with the
-            second method will return a valid list of supported first factor
-            strategies, like "password" or "email_magic_link".
+            <Text style={{ fontWeight: "bold" }}>Bug #1: </Text>
+            Normally, OAuth sign in will work as expected. However, if the
+            network is unavailable, startOAuthFlow() will fail with "Cannot read
+            property 'toString' of null".
           </Text>
 
           <Text>
-            <Text style={{ fontWeight: "bold" }}>Bug #1:</Text> If the network
-            request is interrupted during OAuth sighup, XXX() will never be
-            initialized, and you'll get an error "Cannot toString of XXXXXX".
+            <Text style={{ fontWeight: "bold" }}>Bug #2: </Text> Normally,
+            creating a SignIn object with just an identifier will return a list
+            of first factor strategies. However, if the network is down,
+            supportedFirstFactors will be an empty array.
           </Text>
 
           <Text>
-            <Text style={{ fontWeight: "bold" }}>Bug #2:</Text> If the network
-            request is interrupted during an email address signup without a
-            password, the resulting SignUp object will not be initialized, and
-            supportedFirstFactors will be empty.
+            In both cases, a "ClerkJS: Network error" message is printed to the
+            console. However, there is no way to catch this error or surface the
+            message to the user.
           </Text>
         </VStack>
       </ScrollView>
